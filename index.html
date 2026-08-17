@@ -9,7 +9,6 @@
         .container { background: #1e293b; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 750px; }
         h2 { text-align: center; color: #38bdf8; margin-bottom: 20px; }
         
-        /* লাইভ অ্যানালিটিক্স ড্যাশবোর্ড বক্স */
         .stats-box { display: flex; justify-content: space-between; background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #334155; }
         .stat-item { text-align: center; width: 33%; }
         .stat-item span { display: block; font-size: 18px; font-weight: bold; color: #38bdf8; margin-top: 5px; }
@@ -32,7 +31,6 @@
     <div class="container">
         <h2>🎙️ Voice Create AI Studio</h2>
 
-        <!-- লাইভ স্ট্যাটিস্টিকস ড্যাশবোর্ড -->
         <div class="stats-box">
             <div class="stat-item">
                 <p>Total Visitors</p>
@@ -49,12 +47,12 @@
         </div>
 
         <form id="voiceForm">
-            <label>Enter Your Script (Limit: 2000 Words):</label>
-            <textarea name="text" id="text" required placeholder="Type or paste your script here (up to 2000 words)..."></textarea>
+            <label>Enter Your Script (Limit: 1500 Words):</label>
+            <textarea name="text" id="text" required placeholder="Type or paste your script here (up to 1500 words)..."></textarea>
             
             <div class="counter-box">
                 <span id="warningText" style="color: #38bdf8;">Safe Zone</span>
-                <span id="wordCount">Words: 0 / 2000</span>
+                <span id="wordCount">Words: 0 / 1500</span>
             </div>
             
             <label>Select Voice Character:</label>
@@ -83,9 +81,7 @@
     </div>
 
     <script>
-        // লোকাল স্টোরেজ বা ব্রাউজারের মাধ্যমে লাইভ কাউন্ট ট্র্যাকিং সিস্টেম
         let visits = localStorage.getItem('site_visits') || 105;
-        // যদি প্রথমবার ভিজিট হয় তবে ভিজিটর বাড়াবে
         if (!sessionStorage.getItem('has_visited')) {
             visits = parseInt(visits) + 1;
             localStorage.setItem('site_visits', visits);
@@ -102,7 +98,7 @@
         const wordCountDisplay = document.getElementById('wordCount');
         const warningText = document.getElementById('warningText');
         const submitBtn = document.getElementById('submitBtn');
-        const maxWords = 2000;
+        const maxWords = 1500;
 
         textarea.addEventListener('input', function() {
             const text = textarea.value.trim();
@@ -112,7 +108,7 @@
             
             if (words > maxWords) {
                 wordCountDisplay.style.color = '#ef4444';
-                warningText.innerText = "❌ Limit Exceeded! Max 2000 words allowed.";
+                warningText.innerText = "❌ Limit Exceeded! Max 1500 words allowed.";
                 warningText.style.color = '#ef4444';
                 submitBtn.disabled = true;
             } else {
@@ -129,8 +125,8 @@
             const textVal = textarea.value;
             const charVal = document.getElementById('character').value;
 
-            if (textVal.split(/\s+/).length > 2000) {
-                alert('Text exceeds 2000 words limit.');
+            if (textVal.split(/\s+/).length > 1500) {
+                alert('Text exceeds 1500 words limit.');
                 return;
             }
             
@@ -147,7 +143,6 @@
                     const downloadLink = document.getElementById('downloadLink');
                     downloadLink.href = url;
                     
-                    // ভয়েস জেনারেট সফল হলে কাউন্ট বাড়বে
                     generations = parseInt(generations) + 1;
                     localStorage.setItem('site_gens', generations);
                     document.getElementById('genCount').innerText = generations;
@@ -167,7 +162,6 @@
             }
         });
 
-        // ডাউনলোড বাটনে ক্লিক করলে ডাউনলোডের কাউন্ট বাড়বে
         document.getElementById('downloadLink').addEventListener('click', function() {
             downloads = parseInt(downloads) + 1;
             localStorage.setItem('site_dls', downloads);
@@ -176,4 +170,3 @@
     </script>
 </body>
 </html>
-
