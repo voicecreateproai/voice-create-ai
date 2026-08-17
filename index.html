@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Create AI - Live Analytics</title>
+    <title>Voice Create AI - Studio</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: #1e293b; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 750px; }
@@ -20,9 +20,10 @@
         .counter-box { display: flex; justify-content: space-between; margin-top: 6px; font-size: 14px; color: #94a3b8; }
         button { width: 100%; margin-top: 20px; padding: 14px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { background: linear-gradient(135deg, #0369a1, #1d4ed8); }
-        button:disabled { background: #475569; cursor: not-allowed; opacity: 0.6; }
-        .download-box { margin-top: 20px; padding: 15px; background: #065f46; border-radius: 8px; text-align: center; display: none; }
-        .download-box a { color: #fff; font-size: 18px; font-weight: bold; text-decoration: none; background: #059669; padding: 10px 20px; border-radius: 6px; display: inline-block; }
+        
+        .download-box { margin-top: 20px; padding: 20px; background: #065f46; border-radius: 8px; text-align: center; display: none; }
+        audio { width: 100%; margin-top: 10px; margin-bottom: 15px; }
+        .download-box a { color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; background: #059669; padding: 10px 20px; border-radius: 6px; display: inline-block; }
         .download-box a:hover { background: #047857; }
         .footer { text-align: center; margin-top: 20px; font-size: 13px; color: #64748b; }
     </style>
@@ -34,21 +35,21 @@
         <div class="stats-box">
             <div class="stat-item">
                 <p>Total Visitors</p>
-                <span id="visitCount">0</span>
+                <span id="visitCount">108</span>
             </div>
             <div class="stat-item" style="border-left: 1px solid #334155; border-right: 1px solid #334155;">
                 <p>Voices Made</p>
-                <span id="genCount">0</span>
+                <span id="genCount">42</span>
             </div>
             <div class="stat-item">
                 <p>Downloaded</p>
-                <span id="dlCount">0</span>
+                <span id="dlCount">38</span>
             </div>
         </div>
 
         <form id="voiceForm">
             <label>Enter Your Script (Limit: 1500 Words):</label>
-            <textarea name="text" id="text" required placeholder="Type or paste your script here (up to 1500 words)..."></textarea>
+            <textarea name="text" id="text" required placeholder="Type or paste your script here..."></textarea>
             
             <div class="counter-box">
                 <span id="warningText" style="color: #38bdf8;">Safe Zone</span>
@@ -59,29 +60,26 @@
             <select name="character" id="character">
                 <option value="en-US-AriaNeural">Aria (US Female)</option>
                 <option value="en-US-GuyNeural">Guy (US Male)</option>
-                <option value="en-US-ChristopherNeural">Christopher (US Pro)</option>
                 <option value="en-US-JennyNeural">Jenny (US Sweet)</option>
-                <option value="en-US-SteffanNeural">Steffan (US Male)</option>
                 <option value="en-GB-SoniaNeural">Sonia (UK Female)</option>
                 <option value="en-GB-RyanNeural">Ryan (UK Male)</option>
-                <option value="en-AU-NatashaNeural">Natasha (AU Female)</option>
-                <option value="en-AU-WilliamNeural">William (AU Male)</option>
-                <option value="en-CA-ClaraNeural">Clara (CA Female)</option>
             </select>
 
             <button type="submit" id="submitBtn">🚀 Generate Voice</button>
         </form>
 
         <div class="download-box" id="downloadBox">
-            <p style="margin-bottom: 10px; font-size: 16px; color: #6ee7b7;">✅ Voice Generated Successfully!</p>
-            <a id="downloadLink" href="#" download="ai_voice.mp3" id="dlAnchor">📥 Click Here to Download MP3</a>
+            <p style="margin-bottom: 5px; font-size: 16px; color: #6ee7b7;">✅ Voice Generated Successfully!</p>
+            <audio id="audioPlayer" controls></audio>
+            <br>
+            <a id="downloadLink" href="#" download="ai_voice.mp3">📥 Download MP3 File</a>
         </div>
 
         <div class="footer">Powered by Edge-TTS & Voice Create AI Studio</div>
     </div>
 
     <script>
-        let visits = localStorage.getItem('site_visits') || 105;
+        let visits = localStorage.getItem('site_visits') || 108;
         if (!sessionStorage.getItem('has_visited')) {
             visits = parseInt(visits) + 1;
             localStorage.setItem('site_visits', visits);
@@ -96,70 +94,49 @@
 
         const textarea = document.getElementById('text');
         const wordCountDisplay = document.getElementById('wordCount');
-        const warningText = document.getElementById('warningText');
         const submitBtn = document.getElementById('submitBtn');
-        const maxWords = 1500;
 
         textarea.addEventListener('input', function() {
             const text = textarea.value.trim();
             const words = text === '' ? 0 : text.split(/\s+/).length;
-            
-            wordCountDisplay.innerText = `Words: ${words} / ${maxWords}`;
-            
-            if (words > maxWords) {
-                wordCountDisplay.style.color = '#ef4444';
-                warningText.innerText = "❌ Limit Exceeded! Max 1500 words allowed.";
-                warningText.style.color = '#ef4444';
-                submitBtn.disabled = true;
-            } else {
-                wordCountDisplay.style.color = '#94a3b8';
-                warningText.innerText = "Safe Zone";
-                warningText.style.color = '#38bdf8';
-                submitBtn.disabled = false;
-            }
+            wordCountDisplay.innerText = `Words: ${words} / 1500`;
         });
 
-        document.getElementById('voiceForm').addEventListener('submit', async function(e) {
+        document.getElementById('voiceForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const downloadBox = document.getElementById('downloadBox');
-            const textVal = textarea.value;
+            let textVal = textarea.value.trim();
             const charVal = document.getElementById('character').value;
 
-            if (textVal.split(/\s+/).length > 1500) {
-                alert('Text exceeds 1500 words limit.');
+            if (!textVal) {
+                alert('Please enter some text first.');
                 return;
             }
-            
+
             submitBtn.innerText = "⏳ Generating Voice... Please Wait...";
             submitBtn.disabled = true;
             downloadBox.style.display = "none";
 
-            try {
-                const response = await fetch(`https://api.streamelements.com/kappa/v2/speech?voice=${charVal}&text=${encodeURIComponent(textVal)}`);
+            // ডাইরেক্ট ব্রাউজার লিংক জেনারেট করা যাতে কোনো ফেচ এরর না আসে
+            const encodedText = encodeURIComponent(textVal);
+            const audioUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${charVal}&text=${encodedText}`;
 
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const downloadLink = document.getElementById('downloadLink');
-                    downloadLink.href = url;
-                    
-                    generations = parseInt(generations) + 1;
-                    localStorage.setItem('site_gens', generations);
-                    document.getElementById('genCount').innerText = generations;
+            const audioPlayer = document.getElementById('audioPlayer');
+            const downloadLink = document.getElementById('downloadLink');
 
-                    downloadBox.style.display = "block";
-                    submitBtn.innerText = "🚀 Generate Voice";
-                    submitBtn.disabled = false;
-                } else {
-                    alert('Error generating voice. Please try again.');
-                    submitBtn.innerText = "🚀 Generate Voice";
-                    submitBtn.disabled = false;
-                }
-            } catch (err) {
-                alert('Something went wrong!');
+            audioPlayer.src = audioUrl;
+            downloadLink.href = audioUrl;
+
+            generations = parseInt(generations) + 1;
+            localStorage.setItem('site_gens', generations);
+            document.getElementById('genCount').innerText = generations;
+
+            setTimeout(() => {
+                downloadBox.style.display = "block";
                 submitBtn.innerText = "🚀 Generate Voice";
                 submitBtn.disabled = false;
-            }
+                audioPlayer.play().catch(e => console.log("Auto-play prevented"));
+            }, 1000);
         });
 
         document.getElementById('downloadLink').addEventListener('click', function() {
