@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Create AI Studio</title>
-    <!-- Microsoft Edge TTS API ব্যবহার করছি যা সবচেয়ে শক্তিশালী -->
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: #1e293b; padding: 30px; border-radius: 16px; width: 100%; max-width: 600px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
@@ -13,6 +12,7 @@
         select { width: 100%; padding: 12px; margin-top: 15px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #475569; }
         button { width: 100%; padding: 15px; margin-top: 20px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
         .limit-info { display: flex; justify-content: space-between; margin-top: 10px; font-size: 14px; color: #94a3b8; }
+        .download-box { margin-top: 20px; display: none; }
     </style>
 </head>
 <body>
@@ -22,7 +22,7 @@
             <span>Max Limit: 1500 Words</span>
             <span id="wordCounter">Words: 0 / 1500</span>
         </div>
-        <textarea id="script" placeholder="Type your script here..." oninput="updateCounter()"></textarea>
+        <textarea id="script" oninput="updateCounter()" placeholder="Type or paste your script here..."></textarea>
         
         <select id="voiceSelect">
             <option value="en-US-AriaNeural">Aria (US Female)</option>
@@ -41,7 +41,14 @@
             <option value="bn-BD-PradeepNeural">Pradeep (Bengali Male)</option>
         </select>
         
-        <button id="genBtn" onclick="generateVoice()">🚀 Generate & Auto-Download</button>
+        <button id="genBtn" onclick="generateVoice()">🚀 Generate Audio</button>
+
+        <div class="download-box" id="downloadArea">
+            <p>✅ Audio Ready!</p>
+            <audio id="audioPlayer" controls style="width:100%"></audio>
+            <br>
+            <a id="downloadLink" href="#" download="my_voice.mp3" style="color:#38bdf8; font-weight:bold;">📥 Click to Download MP3</a>
+        </div>
     </div>
 
     <script>
@@ -55,29 +62,24 @@
             const text = document.getElementById("script").value.trim();
             const voice = document.getElementById("voiceSelect").value;
             const btn = document.getElementById("genBtn");
-            const wordCount = text.split(/\s+/).length;
+            const downloadArea = document.getElementById("downloadArea");
+            const audioPlayer = document.getElementById("audioPlayer");
+            const downloadLink = document.getElementById("downloadLink");
 
             if (text === "") { alert("Please enter text!"); return; }
-            if (wordCount > 1500) { alert("Max 1500 words allowed."); return; }
-
-            btn.innerText = "⏳ Generating...";
+            
+            btn.innerText = "⏳ Processing...";
             btn.disabled = true;
 
-            const url = `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encodeURIComponent(text)}`;
+            // এখানে আমরা একটি প্রক্সি সার্ভিস ব্যবহার করছি যাতে কোনো API কী ছাড়াই সরাসরি অডিও জেনারেট হয়
+            const url = `https://tts-api.vercel.app/api?text=${encodeURIComponent(text)}&voice=${voice}`;
             
-            // অটোমেটিক ডাউনলোড করার জন্য
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'voice_output.mp3';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            btn.innerText = "✅ Download Started!";
-            setTimeout(() => {
-                btn.innerText = "🚀 Generate & Auto-Download";
-                btn.disabled = false;
-            }, 3000);
+            audioPlayer.src = url;
+            downloadLink.href = url;
+            downloadArea.style.display = "block";
+            
+            btn.innerText = "🚀 Generate Audio";
+            btn.disabled = false;
         }
     </script>
 </body>
