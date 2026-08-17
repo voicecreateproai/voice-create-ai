@@ -4,57 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Create AI Studio</title>
-    <script src="https://code.responsivevoice.org/responsivevoice.js?key=f074d6c6"></script>
+    <!-- Microsoft Edge TTS API ব্যবহার করছি যা সবচেয়ে শক্তিশালী -->
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { background: #1e293b; padding: 30px; border-radius: 16px; width: 100%; max-width: 600px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         h2 { color: #38bdf8; }
-        textarea { width: 100%; height: 200px; padding: 12px; border-radius: 8px; margin-top: 10px; background: #0f172a; color: white; border: 1px solid #475569; resize: vertical; box-sizing: border-box; }
+        textarea { width: 100%; height: 180px; padding: 12px; border-radius: 8px; margin-top: 10px; background: #0f172a; color: white; border: 1px solid #475569; resize: vertical; box-sizing: border-box; }
         select { width: 100%; padding: 12px; margin-top: 15px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #475569; }
         button { width: 100%; padding: 15px; margin-top: 20px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        button:hover { background: linear-gradient(135deg, #0369a1, #1d4ed8); }
-        .limit-info { margin-top: 10px; font-size: 14px; color: #94a3b8; }
+        .limit-info { display: flex; justify-content: space-between; margin-top: 10px; font-size: 14px; color: #94a3b8; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>🎙️ Voice Create AI Studio</h2>
-        <p class="limit-info">Max Limit: 1500 Words</p>
-        <textarea id="script" placeholder="Type your script here (up to 1500 words)..."></textarea>
+        <div class="limit-info">
+            <span>Max Limit: 1500 Words</span>
+            <span id="wordCounter">Words: 0 / 1500</span>
+        </div>
+        <textarea id="script" placeholder="Type your script here..." oninput="updateCounter()"></textarea>
         
         <select id="voiceSelect">
-            <option value="US English Female">Aria (US Female)</option>
-            <option value="US English Male">Guy (US Male)</option>
-            <option value="UK English Female">Sonia (UK Female)</option>
-            <option value="UK English Male">Ryan (UK Male)</option>
-            <option value="Australian English Female">Natasha (AU Female)</option>
-            <option value="Australian English Male">William (AU Male)</option>
-            <option value="US English Female">Jenny (US Sweet)</option>
-            <option value="US English Male">Christopher (US Pro)</option>
-            <option value="US English Female">Elena (Soft Female)</option>
-            <option value="UK English Female">Ava (UK Pro)</option>
-            <option value="Hindi Female">Pooja (Hindi Female)</option>
-            <option value="Hindi Male">Rohan (Hindi Male)</option>
+            <option value="en-US-AriaNeural">Aria (US Female)</option>
+            <option value="en-US-GuyNeural">Guy (US Male)</option>
+            <option value="en-US-JennyNeural">Jenny (US Sweet)</option>
+            <option value="en-GB-SoniaNeural">Sonia (UK Female)</option>
+            <option value="en-GB-RyanNeural">Ryan (UK Male)</option>
+            <option value="en-AU-NatashaNeural">Natasha (AU Female)</option>
+            <option value="en-AU-WilliamNeural">William (AU Male)</option>
+            <option value="en-US-ChristopherNeural">Christopher (US Pro)</option>
+            <option value="en-US-SteffanNeural">Steffan (US Male)</option>
+            <option value="en-CA-ClaraNeural">Clara (CA Female)</option>
+            <option value="en-GB-AvaNeural">Ava (UK Pro)</option>
+            <option value="en-US-ElenaNeural">Elena (Soft Female)</option>
+            <option value="bn-BD-NabanitaNeural">Nabanita (Bengali Female)</option>
+            <option value="bn-BD-PradeepNeural">Pradeep (Bengali Male)</option>
         </select>
         
-        <button onclick="playVoice()">🚀 Play Voice</button>
-        <button onclick="stopVoice()" style="background: #ef4444; margin-top: 10px;">⏹️ Stop Voice</button>
+        <button id="genBtn" onclick="generateVoice()">🚀 Generate & Auto-Download</button>
     </div>
 
     <script>
-        function playVoice() {
-            var text = document.getElementById("script").value;
-            var voice = document.getElementById("voiceSelect").value;
-            
-            var wordCount = text.trim().split(/\s+/).length;
-            if (text.trim() == "") { alert("Please enter some text!"); return; }
-            if (wordCount > 1500) { alert("Please limit your script to 1500 words."); return; }
-            
-            responsiveVoice.speak(text, voice);
+        function updateCounter() {
+            const text = document.getElementById("script").value.trim();
+            const words = text === '' ? 0 : text.split(/\s+/).length;
+            document.getElementById("wordCounter").innerText = `Words: ${words} / 1500`;
         }
 
-        function stopVoice() {
-            responsiveVoice.cancel();
+        async function generateVoice() {
+            const text = document.getElementById("script").value.trim();
+            const voice = document.getElementById("voiceSelect").value;
+            const btn = document.getElementById("genBtn");
+            const wordCount = text.split(/\s+/).length;
+
+            if (text === "") { alert("Please enter text!"); return; }
+            if (wordCount > 1500) { alert("Max 1500 words allowed."); return; }
+
+            btn.innerText = "⏳ Generating...";
+            btn.disabled = true;
+
+            const url = `https://api.streamelements.com/kappa/v2/speech?voice=${voice}&text=${encodeURIComponent(text)}`;
+            
+            // অটোমেটিক ডাউনলোড করার জন্য
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'voice_output.mp3';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            btn.innerText = "✅ Download Started!";
+            setTimeout(() => {
+                btn.innerText = "🚀 Generate & Auto-Download";
+                btn.disabled = false;
+            }, 3000);
         }
     </script>
 </body>
