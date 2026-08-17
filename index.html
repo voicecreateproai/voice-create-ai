@@ -90,17 +90,23 @@
     <script>
         const textarea = document.getElementById('text');
         const wordCountDisplay = document.getElementById('wordCount');
+        const warningText = document.getElementById('warningText');
         const submitBtn = document.getElementById('submitBtn');
 
         textarea.addEventListener('input', function() {
             const text = textarea.value.trim();
             const words = text === '' ? 0 : text.split(/\s+/).length;
             wordCountDisplay.innerText = `Words: ${words} / 1500`;
-            if(words > 1500) {
+            
+            if (words > 1500) {
                 wordCountDisplay.style.color = '#ef4444';
+                warningText.innerText = "❌ Limit Exceeded! Max 1500 words.";
+                warningText.style.color = '#ef4444';
                 submitBtn.disabled = true;
             } else {
                 wordCountDisplay.style.color = '#94a3b8';
+                warningText.innerText = "Safe Zone";
+                warningText.style.color = '#38bdf8';
                 submitBtn.disabled = false;
             }
         });
@@ -110,17 +116,23 @@
             const downloadBox = document.getElementById('downloadBox');
             let textVal = textarea.value.trim();
             const charVal = document.getElementById('character').value;
+            const wordCount = textVal.split(/\s+/).length;
 
             if (!textVal) {
                 alert('Please enter some text first.');
                 return;
             }
+            if (wordCount > 1500) {
+                alert('Text exceeds 1500 words limit.');
+                return;
+            }
 
-            submitBtn.innerText = "⏳ Generating Voice... Please Wait...";
+            submitBtn.innerText = "⏳ Generating Realistic Voice...";
             submitBtn.disabled = true;
             downloadBox.style.display = "none";
 
             const encodedText = encodeURIComponent(textVal);
+            // মাইক্রোসফট এজ টিটিএস ইঞ্জিন ভিত্তিক রিয়ালিস্টিক ভয়েস রিকোয়েস্ট লিংক
             const audioUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${charVal}&text=${encodedText}`;
 
             const audioPlayer = document.getElementById('audioPlayer');
@@ -129,10 +141,12 @@
             audioPlayer.src = audioUrl;
             downloadLink.href = audioUrl;
 
+            // ছোট একটি লোডিং টাইম দিয়ে বক্সটি শো করানো যাতে ব্রাউজার ফাইল লোড করার সময় পায়
             setTimeout(() => {
                 downloadBox.style.display = "block";
                 submitBtn.innerText = "🚀 Generate Voice";
                 submitBtn.disabled = false;
+                audioPlayer.load();
             }, 1500);
         });
     </script>
