@@ -4,33 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Create AI Studio</title>
-    <!-- ResponsiveVoice API -->
     <script src="https://code.responsivevoice.org/responsivevoice.js?key=f074d6c6"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: #1e293b; padding: 30px; border-radius: 16px; width: 100%; max-width: 600px; text-align: center; }
-        textarea { width: 100%; height: 150px; padding: 10px; border-radius: 8px; margin-top: 10px; background: #0f172a; color: white; }
-        button { width: 100%; padding: 15px; margin-top: 20px; background: #38bdf8; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .container { background: #1e293b; padding: 30px; border-radius: 16px; width: 100%; max-width: 600px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        h2 { color: #38bdf8; }
+        textarea { width: 100%; height: 200px; padding: 12px; border-radius: 8px; margin-top: 10px; background: #0f172a; color: white; border: 1px solid #475569; resize: vertical; box-sizing: border-box; }
+        select { width: 100%; padding: 12px; margin-top: 15px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #475569; }
+        button { width: 100%; padding: 15px; margin-top: 20px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        button:hover { background: linear-gradient(135deg, #0369a1, #1d4ed8); }
+        .limit-info { margin-top: 10px; font-size: 14px; color: #94a3b8; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🎙️ Voice Create AI</h2>
-        <textarea id="script" placeholder="Enter text here..."></textarea>
-        <select id="voiceSelect" style="width: 100%; padding: 10px; margin-top: 10px;">
+        <h2>🎙️ Voice Create AI Studio</h2>
+        <p class="limit-info">Max Limit: 1500 Words</p>
+        <textarea id="script" placeholder="Type your script here (up to 1500 words)..."></textarea>
+        
+        <select id="voiceSelect">
             <option value="US English Female">Aria (US Female)</option>
             <option value="US English Male">Guy (US Male)</option>
             <option value="UK English Female">Sonia (UK Female)</option>
+            <option value="UK English Male">Ryan (UK Male)</option>
+            <option value="Australian English Female">Natasha (AU Female)</option>
+            <option value="Australian English Male">William (AU Male)</option>
+            <option value="US English Female">Jenny (US Sweet)</option>
+            <option value="US English Male">Christopher (US Pro)</option>
+            <option value="US English Female">Elena (Soft Female)</option>
+            <option value="UK English Female">Ava (UK Pro)</option>
+            <option value="Hindi Female">Pooja (Hindi Female)</option>
+            <option value="Hindi Male">Rohan (Hindi Male)</option>
         </select>
+        
         <button onclick="playVoice()">🚀 Play Voice</button>
+        <button onclick="stopVoice()" style="background: #ef4444; margin-top: 10px;">⏹️ Stop Voice</button>
     </div>
 
     <script>
         function playVoice() {
             var text = document.getElementById("script").value;
             var voice = document.getElementById("voiceSelect").value;
-            if(text.trim() == "") { alert("Please enter text"); return; }
+            
+            var wordCount = text.trim().split(/\s+/).length;
+            if (text.trim() == "") { alert("Please enter some text!"); return; }
+            if (wordCount > 1500) { alert("Please limit your script to 1500 words."); return; }
+            
             responsiveVoice.speak(text, voice);
+        }
+
+        function stopVoice() {
+            responsiveVoice.cancel();
         }
     </script>
 </body>
