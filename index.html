@@ -5,10 +5,11 @@
     <title>Voice Create AI Studio</title>
     <style>
         body { font-family: sans-serif; background: #0f172a; color: #fff; padding: 20px; display: flex; justify-content: center; }
-        .container { background: #1e293b; padding: 30px; border-radius: 15px; width: 100%; max-width: 600px; text-align: center; }
-        textarea { width: 100%; height: 180px; background: #000; color: white; border: 1px solid #475569; padding: 10px; border-radius: 8px; box-sizing: border-box; }
-        select, button { width: 100%; padding: 12px; margin-top: 15px; border-radius: 8px; cursor: pointer; }
-        button { background: #38bdf8; border: none; font-weight: bold; }
+        .container { background: #1e293b; padding: 30px; border-radius: 15px; width: 100%; max-width: 600px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        textarea { width: 100%; height: 180px; background: #000; color: white; border: 1px solid #475569; padding: 10px; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        select, button { width: 100%; padding: 12px; margin-top: 15px; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        button { background: #38bdf8; border: none; font-weight: bold; color: #0f172a; }
+        button:hover { background: #7dd3fc; }
         .footer-text { margin-top: 15px; font-size: 14px; color: #94a3b8; }
     </style>
 </head>
@@ -20,28 +21,24 @@
         <textarea id="textInput" oninput="countWords()" placeholder="Type your script here..."></textarea>
         
         <select id="voiceSelect">
-            <option value="Aria">Aria (US Female)</option>
-            <option value="Guy">Guy (US Male)</option>
-            <option value="Sonia">Sonia (UK Female)</option>
-            <option value="Ryan">Ryan (UK Male)</option>
-            <option value="Natasha">Natasha (AU Female)</option>
-            <option value="William">William (AU Male)</option>
-            <option value="Jenny">Jenny (US Sweet)</option>
-            <option value="Christopher">Christopher (US Pro)</option>
-            <option value="Elena">Elena (Soft Female)</option>
-            <option value="Ava">Ava (UK Pro)</option>
-            <option value="Pooja">Pooja (Hindi Female)</option>
-            <option value="Rohan">Rohan (Hindi Male)</option>
-            <option value="Nabanita">Nabanita (Bengali Female)</option>
-            <option value="Pradeep">Pradeep (Bengali Male)</option>
+            <option value="0">Aria (US Female)</option>
+            <option value="1">Guy (US Male)</option>
+            <option value="2">Sonia (UK Female)</option>
+            <option value="3">Ryan (UK Male)</option>
+            <option value="4">Natasha (AU Female)</option>
+            <option value="5">William (AU Male)</option>
+            <option value="6">Jenny (US Sweet)</option>
+            <option value="7">Christopher (US Pro)</option>
+            <option value="8">Elena (Soft Female)</option>
+            <option value="9">Ava (UK Pro)</option>
+            <option value="10">Pooja (Hindi Female)</option>
+            <option value="11">Rohan (Hindi Male)</option>
+            <option value="12">Nabanita (Bengali Female)</option>
+            <option value="13">Pradeep (Bengali Male)</option>
         </select>
 
         <button onclick="playVoice()">🚀 Play Voice</button>
-        <button onclick="stopVoice()" style="background: #ef4444;">⏹️ Stop Voice</button>
-        
-        <p class="footer-text">
-            <b>টিপস:</b> ভয়েসটি ডাউনলোড করতে তোমার কম্পিউটারের বা ফোনের 'Voice Recorder' অ্যাপটি অন করে 'Play' বাটনে ক্লিক করো। এটিই বর্তমানে সবচেয়ে হাই-কোয়ালিটি এবং নিশ্চিত উপায়।
-        </p>
+        <button onclick="stopVoice()" style="background: #ef4444; color: white;">⏹️ Stop Voice</button>
     </div>
 
     <script>
@@ -54,10 +51,21 @@
         function playVoice() {
             const text = document.getElementById("textInput").value;
             const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-            if (words > 1500) { alert("Max limit 1500 words!"); return; }
-            if (text.trim() === "") { alert("Enter text!"); return; }
             
+            if (words > 1500) { alert("Max limit 1500 words!"); return; }
+            if (text.trim() === "") { alert("Please enter some text first!"); return; }
+            
+            // ব্রাউজারের আগের কোনো স্পিচ চালু থাকলে তা বন্ধ করে নেওয়া
+            window.speechSynthesis.cancel();
+
             const msg = new SpeechSynthesisUtterance(text);
+            const voices = window.speechSynthesis.getVoices();
+            
+            // ভাষা সেট করার লজিক যাতে সঠিকভাবে ভয়েস ধরে
+            if (voices.length > 0) {
+                msg.voice = voices[Math.floor(Math.random() * voices.length)];
+            }
+            
             window.speechSynthesis.speak(msg);
         }
 
