@@ -20,6 +20,11 @@
         .counter-box { display: flex; justify-content: space-between; margin-top: 6px; font-size: 14px; color: #94a3b8; }
         button { width: 100%; margin-top: 20px; padding: 14px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { background: linear-gradient(135deg, #0369a1, #1d4ed8); }
+        
+        .download-box { margin-top: 20px; padding: 20px; background: #065f46; border-radius: 8px; text-align: center; display: none; }
+        audio { width: 100%; margin-top: 10px; margin-bottom: 15px; }
+        .download-box a { color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; background: #059669; padding: 10px 20px; border-radius: 6px; display: inline-block; }
+        .download-box a:hover { background: #047857; }
         .footer { text-align: center; margin-top: 20px; font-size: 13px; color: #64748b; }
     </style>
 </head>
@@ -69,8 +74,15 @@
                 <option value="bn-BD-PradeepNeural">Pradeep (Bengali Male)</option>
             </select>
 
-            <button type="submit" id="submitBtn">🚀 Generate & Auto-Download</button>
+            <button type="submit" id="submitBtn">🚀 Generate Voice</button>
         </form>
+
+        <div class="download-box" id="downloadBox">
+            <p style="margin-bottom: 5px; font-size: 16px; color: #6ee7b7;">✅ Voice Generated Successfully!</p>
+            <audio id="audioPlayer" controls></audio>
+            <br>
+            <a id="downloadLink" href="#" download="ai_voice.mp3">📥 Click Here to Download MP3</a>
+        </div>
 
         <div class="footer">Powered by Edge-TTS & Voice Create AI Studio</div>
     </div>
@@ -99,8 +111,9 @@
             }
         });
 
-        document.getElementById('voiceForm').addEventListener('submit', async function(e) {
+        document.getElementById('voiceForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            const downloadBox = document.getElementById('downloadBox');
             let textVal = textarea.value.trim();
             const charVal = document.getElementById('character').value;
             const wordCount = textVal.split(/\s+/).length;
@@ -114,45 +127,25 @@
                 return;
             }
 
-            submitBtn.innerText = "⏳ Generating & Downloading...";
+            submitBtn.innerText = "⏳ Generating Voice...";
             submitBtn.disabled = true;
+            downloadBox.style.display = "none";
 
             const encodedText = encodeURIComponent(textVal);
             const audioUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${charVal}&text=${encodedText}`;
 
-            try {
-                // পাইথনের ফাইলের মতো সরাসরি ব্যাকগ্রাউন্ডে ফেচ করে অটোমেটিক ডাউনলোড ট্রিগার করা
-                const response = await fetch(audioUrl);
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const blobUrl = window.URL.createObjectURL(blob);
-                    
-                    const a = document.createElement('a');
-                    a.href = blobUrl;
-                    a.download = `AI_Voice_${Date.now()}.mp3`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(blobUrl);
+            const audioPlayer = document.getElementById('audioPlayer');
+            const downloadLink = document.getElementById('downloadLink');
 
-                    submitBtn.innerText = "✅ Downloaded Successfully!";
-                } else {
-                    alert('Generation failed. Please try again.');
-                    submitBtn.innerText = "🚀 Generate & Auto-Download";
-                }
-            } catch (err) {
-                // যদি ব্রাউজার সিকিউরিটি বাধা দেয়, তবে ডাইরেক্ট লিংকে ফলব্যাক করবে
-                const a = document.createElement('a');
-                a.href = audioUrl;
-                a.download = 'AI_Voice.mp3';
-                a.click();
-                submitBtn.innerText = "✅ Download Triggered!";
-            }
+            audioPlayer.src = audioUrl;
+            downloadLink.href = audioUrl;
 
             setTimeout(() => {
-                submitBtn.innerText = "🚀 Generate & Auto-Download";
+                downloadBox.style.display = "block";
+                submitBtn.innerText = "🚀 Generate Voice";
                 submitBtn.disabled = false;
-            }, 3000);
+                audioPlayer.load();
+            }, 1000);
         });
     </script>
 </body>
